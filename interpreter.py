@@ -2,7 +2,7 @@ import re as regex
 import string
 
 # 1-5. OPERATOR SYMBOLS
-Operator_Symbol = [
+Operator_Symbols = [
     "=", 
     "+=", 
     "-=", 
@@ -29,7 +29,7 @@ Operator_Symbol = [
     "<="
 ]
 
-Operator_Name = [
+Operator_Names = [
     "Equal Sign",
     "Addition Assignment",
     "Subtraction Assignment",
@@ -143,11 +143,11 @@ def lexer(contents):
                 items.append(("String", token))
             elif regex.match(r"[.a-zA-Z]+", token):
                 items.append(("Keyword", token))
-            elif token in Operator_Symbol:
+            elif token in Operator_Symbols:
                 # Find the index of the token
-                index = Operator_Symbol.index(token)
+                index = Operator_Symbols.index(token)
                 # Append the corresponding name and token as a tuple
-                items.append((Operator_Name[index], token))
+                items.append((Operator_Names[index], token))
             elif token in special_char:
                 items.append(("Delimeter", token))
             elif regex.match(r"[.0-9]+", token):
