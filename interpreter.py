@@ -16,11 +16,46 @@ Logical_Operator = ["!", "&&", "||"]
 # 5. Relational Operator
 Relational_Operator = ["==", "!=", ">", "<", ">=", "<="]
 
-# 6. 
-# 7. 
-# 8. 
-# 9. 
-# 10.
+# 6. Keywords
+Keywords = [
+    "flex",
+    "nocap",
+    "bet",
+    "forreal",
+    "sus",
+    "else",
+    "tryme",
+    "mood",
+    "ouchy",
+    "spill",
+    "looptalk",
+    "like",
+    "unlike",
+    "reply",
+    "post",
+    "talk",
+    "scene"
+]
+
+# 7. Reserved Words
+Reserved_Words = [
+    "tru",
+    "barbers",
+    "cancel",
+    "fresh",
+    "stat",
+    "super",
+    "class",
+    "char",
+    "num",
+    "caption",
+    "feed",
+    "trend"
+]
+
+# 8. Noise Words
+# 9. Delimiters
+# 10.Brackets
 
 # Insert All Token Types of JARGEN
 # Example: Assignment_Operator = {=, +=, -=, *=, /=, %=}
