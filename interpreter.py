@@ -1,9 +1,15 @@
 import re as regex
 import string
 
+# Insert All Token Types of JARGEN
+# Example: Assignment_Operator = {=, +=, -=, *=, /=, %=}
+# You can use other techniques other than explicitly typing it if it is more efficient
+
 def lexer(contents):
     lines = contents.split('\n')
     special_char = set(string.punctuation) - {'"', "'"}
+
+    nLines = []
 
     for line in lines:
         chars = list(line)
@@ -48,7 +54,8 @@ def lexer(contents):
             elif regex.match(r"[.0-9]+", token):
                 items.append(("Number", token))
 
-        print(items)
+        nLines.append(items)
+    return nLines
 
 def parse(file):
     contents = open(file, "r").read()
