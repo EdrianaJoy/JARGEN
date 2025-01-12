@@ -1,25 +1,30 @@
 import re as regex
 import string
 
-# 1. COMMENTS
-# 2. 
-# 3. 
-# 4. 
-# 5. 
+# 1. Assignment Operator
+Assignment_Operator = ["=", "+=", "-=", "*=", "/=", "%=", "^="]
+
+# 2. Arithmetic Operator
+Arithmetic_Operator = ["+", "-", "*", "/", "%", "^"]
+
+# 3. Unary Operator
+Unary_Operator = ["++", "--"]
+
+# 4. Logical Operator
+Logical_Operator = ["!", "&&", "||"]
+
+# 5. Relational Operator
+Relational_Operator = ["==", "!=", ">", "<", ">=", "<="]
+
 # 6. 
 # 7. 
 # 8. 
 # 9. 
 # 10.
 
-
-
-
 # Insert All Token Types of JARGEN
 # Example: Assignment_Operator = {=, +=, -=, *=, /=, %=}
 # You can use other techniques other than explicitly typing it if it is more efficient
-
-Assignment_Operator = ["=", "+="]
 
 def lexer(contents):
     lines = contents.split('\n')
