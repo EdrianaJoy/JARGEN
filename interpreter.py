@@ -25,21 +25,22 @@ def lexer(contents):
             else:
                 in_quotes = True
 
-            if (char in special_char and temp_str != "" and in_quotes == False) or (char == " " and in_quotes == False):
-                tokens.append(temp_str)
-                temp_str = ""
-                temp_str += char
-                if temp_str in special_char:
+            if (char in special_char and temp_str != "" and in_quotes == False) or (char.isspace() and in_quotes == False):
+                if temp_str != "":
                     tokens.append(temp_str)
                     temp_str = ""
-                if temp_str == " ":
-                    temp_str = ""
+                    temp_str += char
+                    if temp_str in special_char:
+                        tokens.append(temp_str)
+                        temp_str = ""
+                    if temp_str.isspace():
+                        temp_str = ""
             else:
                 temp_str += char
                 
         if temp_str != "":
             tokens.append(temp_str)
-        
+
         items = []
 
         for token in tokens:
