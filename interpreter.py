@@ -1,26 +1,66 @@
 import re as regex
 import string
 
-# 1. Assignment Operator
-Assignment_Operator = ["=", "+=", "-=", "*=", "/=", "%=", "^="]
+# 1-5. OPERATOR SYMBOLS
+Operator_Symbol = [
+    "=", 
+    "+=", 
+    "-=", 
+    "*=", 
+    "/=", 
+    "%=", 
+    "^=", 
+    "+", 
+    "-", 
+    "*", 
+    "/", 
+    "%", 
+    "^", 
+    "++", 
+    "--", 
+    "!", 
+    "&&", 
+    "||", 
+    "==", 
+    "!=", 
+    ">", 
+    "<", 
+    ">=", 
+    "<="
+]
 
-# 2. Arithmetic Operator
-Arithmetic_Operator = ["+", "-", "*", "/", "%", "^"]
-
-# 3. Unary Operator
-Unary_Operator = ["++", "--"]
-
-# 4. Logical Operator
-Logical_Operator = ["!", "&&", "||"]
-
-# 5. Relational Operator
-Relational_Operator = ["==", "!=", ">", "<", ">=", "<="]
+Operator_Name = [
+    "Equal Sign",
+    "Addition Assignment",
+    "Subtraction Assignment",
+    "Multiplication Assignment",
+    "Division Assignment",
+    "Remainder Assignment",
+    "Exponentiation Assignment",
+    "Addition Operator",
+    "Subtraction Operator",
+    "Multiplication Operator",
+    "Division Operator",
+    "Remainder Operator",
+    "Exponentiation Operator",
+    "Increment Operator",
+    "Decrement Operator",
+    "Logical NOT Operator",
+    "Logical AND Operator",
+    "Logical OR Operator",
+    "Equal To Operator",
+    "Not Equal To Operator",
+    "Greater Than Operator",
+    "Less Than Operator",
+    "Greater Than or Equal To Operator",
+    "Less Than or Equal To Operator"
+]
 
 # 6. 
 # 7. 
 # 8. 
 # 9. 
-# 10.
+# 10. 
 
 # Insert All Token Types of JARGEN
 # Example: Assignment_Operator = {=, +=, -=, *=, /=, %=}
@@ -68,8 +108,11 @@ def lexer(contents):
                 items.append(("String", token))
             elif regex.match(r"[.a-zA-Z]+", token):
                 items.append(("Keyword", token))
-            elif token in "+-*/%=":
-                items.append(("Operator", token))
+            elif token in Operator_Symbol:
+                # Find the index of the token
+                index = Operator_Symbol.index(token)
+                # Append the corresponding name and token as a tuple
+                items.append((Operator_Name[index], token))
             elif token in special_char:
                 items.append(("Delimeter", token))
             elif regex.match(r"[.0-9]+", token):
