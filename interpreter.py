@@ -5,6 +5,8 @@ import string
 # Example: Assignment_Operator = {=, +=, -=, *=, /=, %=}
 # You can use other techniques other than explicitly typing it if it is more efficient
 
+Assignment_Operator = ["=", "+="]
+
 def lexer(contents):
     lines = contents.split('\n')
     special_char = set(string.punctuation) - {'"', "'"}
@@ -25,16 +27,15 @@ def lexer(contents):
             else:
                 in_quotes = True
 
-            if (char in special_char and temp_str != "" and in_quotes == False) or (char.isspace() and in_quotes == False):
-                if temp_str != "":
+            if (char in special_char and temp_str != "" and in_quotes == False) or (char.isspace() and in_quotes == False and temp_str != ""):
+                tokens.append(temp_str)
+                temp_str = ""
+                temp_str += char
+                if temp_str in special_char:
                     tokens.append(temp_str)
                     temp_str = ""
-                    temp_str += char
-                    if temp_str in special_char:
-                        tokens.append(temp_str)
-                        temp_str = ""
-                    if temp_str.isspace():
-                        temp_str = ""
+                if temp_str.isspace():
+                    temp_str = ""
             else:
                 temp_str += char
                 
