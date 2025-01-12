@@ -94,8 +94,24 @@ Reserved_Words = [
 ]
 
 # 8. Noise Words
+
 # 9. Delimiters
+Delimiters = [
+    "=",
+    ",",
+    ";",
+    "+",
+    " " " ",
+    "@"
+]
+
 # 10.Brackets
+Brackets = [
+    "( )",
+    "[ ]",
+    "{ }"
+]
+
 
 # Insert All Token Types of JARGEN
 # Example: Assignment_Operator = {=, +=, -=, *=, /=, %=}
