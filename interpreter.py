@@ -1,6 +1,20 @@
 import re as regex
 import string
 
+# 1.
+# 2. 
+# 3. 
+# 4. 
+# 5. 
+# 6. 
+# 7. 
+# 8. 
+# 9. 
+# 10.
+
+
+
+
 # Insert All Token Types of JARGEN
 # Example: Assignment_Operator = {=, +=, -=, *=, /=, %=}
 # You can use other techniques other than explicitly typing it if it is more efficient
