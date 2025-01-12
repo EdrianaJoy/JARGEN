@@ -58,23 +58,23 @@ Operator_Names = [
 
 # 6. Keywords
 Keywords = [
-    "flex",
-    "nocap",
-    "bet",
-    "forreal",
-    "sus",
-    "else",
-    "tryme",
-    "mood",
-    "ouchy",
-    "spill",
-    "looptalk",
-    "like",
-    "unlike",
-    "reply",
-    "post",
-    "talk",
-    "scene"
+    "flex", # Inspired by let: Declares a mutable variable (JavaScript).
+    "nocap", # Inspired by const: Declares an immutable variable (JavaScript).
+    "bet", # Inspired by var: Declares a variable, function-scoped (JavaScript).
+    "forreal", # Inspired by for: Creates a loop (JavaScript, Python).
+    "sus", # Inspired by if: Executes code if a condition is true (JavaScript, Python).
+    "else", # Inspired by else: Executes code if 'if' condition is false (JavaScript, Python).
+    "tryme", # Inspired by try: Tests for errors in a block (JavaScript, Python).
+    "mood", # Inspired by switch: Executes code based on a matching case. (JavaScript)
+    "ouchy", # Inspired by break: Exits a loop or switch (JavaScript, Python).
+    "spill", # Inspired by print/log: Outputs info (console.log() for JavaScript, print() for Python).
+    "looptalk", # Inspired by do-while: Executes a loop at least once (JavaScript).
+    "like", # Inspired by increment: Increases a value (++, JavaScript).
+    "unlike", # Inspired by decrement: Decreases a value (--, JavaScript).
+    "reply", # Inspired by return: Exits a function with a value (JavaScript, Python).
+    "post", # Inspired by scan: Reads user input (prompt() for JavaScript, input() for Python).
+    "talk", # Inspired by while: Loops while a condition is true (JavaScript, Python).;
+    "scene" # Inspired by case: A condition in a switch (JavaScript).
 ]
 
 # 7. Reserved Words
