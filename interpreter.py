@@ -65,32 +65,32 @@ Keywords = [
     "sus", # Inspired by if: Executes code if a condition is true (JavaScript, Python).
     "else", # Inspired by else: Executes code if 'if' condition is false (JavaScript, Python).
     "tryme", # Inspired by try: Tests for errors in a block (JavaScript, Python).
-    "mood", # Inspired by switch: Executes code based on a matching case. (JavaScript)
+    "mood", # Inspired by switch: Executes code based on a matching case (JavaScript).
     "ouchy", # Inspired by break: Exits a loop or switch (JavaScript, Python).
-    "spill", # Inspired by print/log: Outputs info (console.log() for JavaScript, print() for Python).
+    "spill", # Inspired by print/log: Outputs info ('console.log()' for JavaScript, 'print()' for Python).
     "looptalk", # Inspired by do-while: Executes a loop at least once (JavaScript).
     "like", # Inspired by increment: Increases a value (++, JavaScript).
     "unlike", # Inspired by decrement: Decreases a value (--, JavaScript).
     "reply", # Inspired by return: Exits a function with a value (JavaScript, Python).
-    "post", # Inspired by scan: Reads user input (prompt() for JavaScript, input() for Python).
-    "talk", # Inspired by while: Loops while a condition is true (JavaScript, Python).;
+    "post", # Inspired by scan: Reads user input ('prompt()' for JavaScript, 'input()' for Python).
+    "talk", # Inspired by while: Loops while a condition is true (JavaScript, Python).
     "scene" # Inspired by case: A condition in a switch (JavaScript).
 ]
 
 # 7. Reserved Words
 Reserved_Words = [
-    "tru",
-    "barbers",
-    "cancel",
-    "fresh",
-    "stat",
-    "super",
-    "class",
-    "char",
-    "num",
-    "caption",
-    "feed",
-    "trend"
+    "tru", # Inspired by boolean: Represents true values (JavaScript).
+    "barbers", # Inspired by boolean: Represents false values (JavaScript).
+    "cancel", # Inspired by null: Represents an intentional absence of value (JavaScript).
+    "fresh", # Inspired by new: Creates an instance of an object (JavaScript).
+    "stat", # Inspired by static: Declares a class-level method or property (JavaScript).
+    "super", # Inspired by super: Refers to the parent class (JavaScript).
+    "class", # Inspired by class: Declares a blueprint for objects (JavaScript, Python).
+    "char", # Inspired by char: Represents a single character.
+    "num", # Inspired by int: Represents an integer (used in Python as a type).
+    "caption", # Inspired by string: Represents a sequence of characters (JavaScript, Python).
+    "feed", # Inspired by array: Represents a collection of items (JavaScript, similar to lists in Python).
+    "trend" # Inspired by function: Declares a reusable block of code (JavaScript).
 ]
 
 # 8. Noise Words
@@ -111,7 +111,6 @@ Brackets = [
     "[ ]",
     "{ }"
 ]
-
 
 # Insert All Token Types of JARGEN
 # Example: Assignment_Operator = {=, +=, -=, *=, /=, %=}
