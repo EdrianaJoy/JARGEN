@@ -1,7 +1,7 @@
 import re as regex
 import string
 
-# 1.
+# 1. COMMENTS
 # 2. 
 # 3. 
 # 4. 
