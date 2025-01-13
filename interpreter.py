@@ -256,3 +256,104 @@ def parse(file):
     contents = open(file, "r").read()
     tokens = lexer(contents)
     return tokens
+
+# FOR ERROR HANDLING
+"""
+def lexer(contents):
+    if not contents.strip():
+        raise ValueError("Error: Input content is empty.")
+
+    lines = contents.split('\n')
+    special_char = set(string.punctuation) - {'"', "'"}
+    nLines = []
+
+    for line_no, line in enumerate(lines, start=1):
+        chars = list(line)
+        tokens = []
+        i = 0
+
+        while i < len(chars):
+            char = chars[i]
+
+            # Handle numbers with decimals
+            if char.isdigit() or (char == '.' and i + 1 < len(chars) and chars[i + 1].isdigit()):
+                start_index = i
+                dot_count = 0
+                while i < len(chars) and (chars[i].isdigit() or chars[i] == '.'):
+                    if chars[i] == '.':
+                        dot_count += 1
+                        if dot_count > 1:
+                            raise ValueError(f"Error: Invalid number format at line {line_no}, position {i + 1}.")
+                    i += 1
+                number = ''.join(chars[start_index:i])
+                tokens.append(("Float Number" if '.' in number else "Integer", number))
+
+            # Handle alphanumeric identifiers
+            elif char.isalnum():
+                start_index = i
+                while i < len(chars) and chars[i].isalnum():
+                    i += 1
+                alphanumeric = ''.join(chars[start_index:i])
+                tokens.append(("Keyword" if alphanumeric in Keywords else "Identifier", alphanumeric))
+
+            # Handle string literals
+            elif char in {'"', "'"}:
+                start_delim = char
+                strings = [char]
+                i += 1
+                while i < len(chars):
+                    current_char = chars[i]
+                    if current_char == start_delim:
+                        strings.append(current_char)
+                        i += 1
+                        break
+                    strings.append(current_char)
+                    i += 1
+                else:
+                    raise ValueError(f"Error: Unclosed string literal starting at line {line_no}, position {start_index + 1}.")
+                string_literal = ''.join(strings)
+                tokens.append(("String", string_literal))
+
+            # Handle operators
+            elif char in Single_Operator_Symbols:
+                next_char = chars[i + 1] if i + 1 < len(chars) else None
+                if next_char and (char + next_char) in Operator_Symbols:
+                    tokens.append(("Operator", char + next_char))
+                    i += 2
+                else:
+                    tokens.append(("Operator", char))
+                    i += 1
+
+            # Handle brackets
+            elif char in Brackets:
+                tokens.append(("Bracket", char))
+                i += 1
+
+            # Ignore whitespace
+            elif char.isspace():
+                i += 1
+
+            # Invalid characters
+            else:
+                raise ValueError(f"Error: Invalid character '{char}' at line {line_no}, position {i + 1}.")
+
+        nLines.append(tokens)
+    return nLines
+
+def parse(file):
+    try:
+        with open(file, "r") as f:
+            contents = f.read()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Error: File '{file}' not found.")
+    except IOError as e:
+        raise IOError(f"Error: Unable to read the file. {e}")
+    
+    try:
+        tokens = lexer(contents)
+    except ValueError as e:
+        print(e)
+        return []
+    
+    return tokens
+"""
