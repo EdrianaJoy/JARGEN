@@ -1,2 +1,2 @@
-number = 20 -- 4
-spill("Hello!!!")
+number = 55.55 + 10
+spill ("Hello!!!")

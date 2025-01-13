@@ -172,7 +172,18 @@ def lexer(contents):
             char = chars[i]
             # print(char)
             
-            if char.isalnum():
+            # Handle numbers with decimals
+            if char.isdigit() or (char == '.' and i + 1 < len(chars) and chars[i + 1].isdigit()):
+                start_index = i
+                while i < len(chars) and (chars[i].isdigit() or chars[i] == '.'):
+                    # Prevent double decimal points in one token
+                    if chars[i] == '.' and (i + 1 >= len(chars) or not chars[i + 1].isdigit()):
+                        break
+                    i += 1
+                number = ''.join(chars[start_index:i])
+                tokens.append(number)
+            
+            elif char.isalnum():
                 start_index = i
                 while i < len(chars) and chars[i].isalnum():
                     i += 1
@@ -231,8 +242,10 @@ def lexer(contents):
             elif token in Brackets:
                 index = Brackets.index(token)
                 items.append((Bracket_Names[index], token))
-            elif regex.match(r"[.0-9]+", token):
-                items.append(("Number", token))
+            elif regex.match(r"^\d+\.\d+$", token):  # Match decimals
+                items.append(("Float Number", token))
+            elif regex.match(r"^\d+$", token):  # Match integers
+                items.append(("Integer", token))
             elif token not in Keywords and token not in Reserved_Words:
                 items.append(("Identifier", token))
 
