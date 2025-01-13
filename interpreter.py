@@ -56,6 +56,21 @@ Operator_Names = [
     "Less Than or Equal To Operator"
 ]
 
+Single_Operator_Symbols = [
+    "=",
+    "+", 
+    "-", 
+    "*", 
+    "/", 
+    "%", 
+    "^", 
+    ">", 
+    "<",
+    "!",
+    "&",
+    "|"
+]
+
 # 6. Keywords
 Keywords = [
     "flex", # Inspired by let: Declares a mutable variable (JavaScript).
@@ -101,15 +116,36 @@ Delimiters = [
     ",",
     ";",
     "+",
-    " " " ",
+    '""',
     "@"
+]
+
+Delimiter_Names = [
+    "Equal Sign",
+    "Comma",
+    "Semi-colon"
+    "Add Sign",
+    "Open Close Quotation",
+    "At Sign"
 ]
 
 # 10.Brackets
 Brackets = [
-    "( )",
-    "[ ]",
-    "{ }"
+    "(",
+    ")",
+    "[",
+    "]",
+    "{",
+    "}"
+]
+
+Bracket_Names = [
+    "Open Parenthesis",
+    "Close Parenthesis",
+    "Open Bracket",
+    "Close Bracket",
+    "Open Curly Brace",
+    "Close Curly Brace"
 ]
 
 # Insert All Token Types of JARGEN
@@ -124,47 +160,72 @@ def lexer(contents):
 
     for line in lines:
         chars = list(line)
-        quote_count = 0
         tokens = []
-        temp_str = ""
-        for char in chars:
 
-            if char == '"' or char == "'":
-                quote_count += 1
-            if quote_count % 2 == 0:
-                in_quotes = False
+        i = 0
+        while i < len(chars):
+            char = chars[i]
+            # print(char)
+            
+            if char.isalnum():
+                start_index = i
+                while i < len(chars) and chars[i].isalnum():
+                    i += 1
+                alphanumeric = ''.join(chars[start_index:i])
+                tokens.append(alphanumeric)
+            elif char in {'"', "'"}:
+                start_delim = char
+                strings = [char]
+                i += 1
+                while i < len(chars):
+                    current_char = chars[i]
+                    if current_char == start_delim:
+                        strings.append(current_char)
+                        i += 1
+                        break
+                    else:
+                        strings.append(current_char)
+                    i += 1
+                string_literal = ''.join(strings)
+                tokens.append(string_literal)
+            elif char in Single_Operator_Symbols:
+                next_char = chars[i + 1] if i + 1 < len(chars) else None
+                if next_char and (char + next_char) in Operator_Symbols:
+                    tokens.append(char + next_char)
+                    i += 2
+                else:
+                    tokens.append(char)
+                    i += 1
+            elif char in Brackets:
+                tokens.append(char)
+                i += 1
+            elif char.isspace():
+                i += 1
             else:
-                in_quotes = True
-
-            if (char in special_char and temp_str != "" and in_quotes == False) or (char.isspace() and in_quotes == False and temp_str != ""):
-                tokens.append(temp_str)
-                temp_str = ""
-                temp_str += char
-                if temp_str in special_char:
-                    tokens.append(temp_str)
-                    temp_str = ""
-                if temp_str.isspace():
-                    temp_str = ""
-            else:
-                temp_str += char
-                
-        if temp_str != "":
-            tokens.append(temp_str)
+                i += 1
 
         items = []
 
         for token in tokens:
             if token[0] == '"' or token[0] == "'":
                 items.append(("String", token))
-            elif regex.match(r"[.a-zA-Z]+", token):
+            elif token in Keywords:
+                index = Keywords.index(token)
                 items.append(("Keyword", token))
+            elif token in Reserved_Words:
+                index = Reserved_Words.index(token)
+                items.append(("Reserved Word", token))
             elif token in Operator_Symbols:
                 # Find the index of the token
                 index = Operator_Symbols.index(token)
                 # Append the corresponding name and token as a tuple
                 items.append((Operator_Names[index], token))
-            elif token in special_char:
-                items.append(("Delimeter", token))
+            elif token in Delimiters:
+                index = Delimiters.index(token)
+                items.append((Delimiter_Names[index], token))
+            elif token in Brackets:
+                index = Brackets.index(token)
+                items.append((Bracket_Names[index], token))
             elif regex.match(r"[.0-9]+", token):
                 items.append(("Number", token))
 
