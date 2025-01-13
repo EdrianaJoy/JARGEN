@@ -1,2 +1,2 @@
-20 -- 4
+number = 20 -- 4
 spill("Hello!!!")

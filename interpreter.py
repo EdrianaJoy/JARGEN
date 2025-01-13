@@ -233,6 +233,8 @@ def lexer(contents):
                 items.append((Bracket_Names[index], token))
             elif regex.match(r"[.0-9]+", token):
                 items.append(("Number", token))
+            elif token not in Keywords and token not in Reserved_Words:
+                items.append(("Identifier", token))
 
         nLines.append(items)
     return nLines
