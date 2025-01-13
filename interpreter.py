@@ -109,6 +109,11 @@ Reserved_Words = [
 ]
 
 # 8. Noise Words
+Noise_Words = {
+    "real",
+    "me",
+    "y",
+}
 
 # 9. Delimiters
 Delimiters = [
