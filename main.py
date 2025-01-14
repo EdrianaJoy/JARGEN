@@ -2,4 +2,7 @@ from sys import *
 from interpreter import *
 
 if __name__ == '__main__':
-    print(parse(argv[1]))
+    if len(argv) > 1:
+        print(parse(argv[1]))  # Output the result of parse
+    else:
+        print("No input provided.")

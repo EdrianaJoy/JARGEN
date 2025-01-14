@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyScript Example</title>
+    <!-- Include PyScript CSS -->
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <!-- Include PyScript JS -->
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+</head>
+<body>
+    <h1>PyScript with Python in HTML</h1>
+    
+    <!-- Create a div to display the Python output -->
+    <p id="text"></p>
+    
+    <!-- PyScript section with embedded Python -->
+    <py-script>
+        print("hello world")
+        x = 0
+        pyscript.write("text", x + 1)
+    </py-script>
+
+</body>
+</html>

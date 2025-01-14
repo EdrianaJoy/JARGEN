@@ -232,9 +232,7 @@ def lexer(contents):
                 index = Reserved_Words.index(token)
                 items.append(("Reserved Word", token))
             elif token in Operator_Symbols:
-                # Find the index of the token
                 index = Operator_Symbols.index(token)
-                # Append the corresponding name and token as a tuple
                 items.append((Operator_Names[index], token))
             elif token in Delimiters:
                 index = Delimiters.index(token)
@@ -252,8 +250,11 @@ def lexer(contents):
         nLines.append(items)
     return nLines
 
-def parse(file):
-    contents = open(file, "r").read()
+def parse(contents):
+    # contents = open(file, "r").read()
+    # tokens = lexer(contents)
+    # return tokens
+
     tokens = lexer(contents)
     return tokens
 
