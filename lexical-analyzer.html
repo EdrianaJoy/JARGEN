@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="lexical-analyzer.css">
+    <title>JARGEN</title>
+</head>
+<body>
+    <header>
+        <h1>Lexical Analyzer IDE</h1>
+    </header>
+    <main>
+        <div class="editor-container">
+            <div class="line-numbers" id="lineNumbers"></div>
+            <textarea id="codeInput" placeholder="Enter your code here..."></textarea>
+        </div>
+        <button id="runButton">Run</button>
+        <div class="output-container">
+            <h3>Output</h3>
+            <pre>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</pre>
+        </div>
+    </main>
+    <script>
+        const textarea = document.getElementById('codeInput');
+        const lineNumbers = document.getElementById('lineNumbers');
+
+        // Function to update line numbers
+        function updateLineNumbers() {
+            const lines = textarea.value.split('\n').length;
+            lineNumbers.innerHTML = '';
+            for (let i = 1; i <= lines; i++) {
+                const line = document.createElement('span');
+                line.textContent = i;
+                lineNumbers.appendChild(line);
+            }
+        }
+
+        // Event listeners to update line numbers dynamically
+        textarea.addEventListener('input', updateLineNumbers);
+        textarea.addEventListener('scroll', () => {
+            lineNumbers.scrollTop = textarea.scrollTop;
+        });
+
+        // Initialize line numbers
+        updateLineNumbers();
+    </script>
+</body>
+</html>
