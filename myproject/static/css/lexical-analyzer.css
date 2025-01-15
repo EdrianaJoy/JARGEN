@@ -19,13 +19,18 @@ main {
 }
 .editor-container {
     display: flex;
-    width: 80%;
     max-width: 800px;
     margin: 20px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
     overflow: hidden;
     background: white;
+    max-height: 255px; /* Restricts the overall height */
+}
+.editor {
+    display: flex;
+    width: 880px;
+    overflow: hidden; /* Ensures content doesn't overflow the container */
 }
 .line-numbers {
     background-color: #f0f0f0;
@@ -35,14 +40,14 @@ main {
     font-family: monospace;
     font-size: 16px;
     user-select: none;
+    overflow-y: auto; /* Makes the line numbers scrollable */
+    max-height: 250px; /* Matches the container's max height */
+    overflow-y: hidden; /* Hide vertical scrollbar */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 .line-numbers span {
     display: block;
     line-height: 1.5em;
-}
-form{
-    width: 60%;
-    margin: 0 auto;
 }
 textarea {
     flex: 1;
@@ -53,7 +58,8 @@ textarea {
     outline: none;
     resize: none;
     line-height: 1.5em;
-    overflow: auto;
+    overflow: auto; /* Makes the textarea scrollable */
+    max-height: 250px; /* Matches the container's max height */
 }
 button {
     margin-top: 10px;
@@ -70,8 +76,8 @@ button:hover {
     background-color: #45a049;
 }
 .output-container {
-    width: 80%;
-    max-width: 760px;
+    width: 760px;
+    max-width: 800px;
     background: #fff;
     padding: 20px;
     border: 1px solid #ccc;
@@ -87,4 +93,6 @@ pre {
     border-radius: 4px;
     overflow-x: auto;
     font-family: monospace;
+    max-height: 250px;
+    margin: 0;
 }

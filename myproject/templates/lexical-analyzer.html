@@ -13,12 +13,14 @@
     </header>
     <main>
         <form method="POST">
-        {% csrf_token %}
-        <div class="editor-container">
-            <div class="line-numbers" id="lineNumbers"></div>
-            <textarea id="codeInput" name="user_input" placeholder="Enter your code here...">{{ user_input }}</textarea>
-        </div>
-        <button id="runButton">Run</button>
+            {% csrf_token %}
+            <div class="editor-container">
+                <div class="editor">
+                    <div class="line-numbers" id="lineNumbers"></div>
+                    <textarea id="codeInput" name="user_input" placeholder="Enter your code here...">{{ user_input }}</textarea>    
+                </div>
+            </div>
+            <button id="runButton">Run</button>
         </form>
         <div class="output-container">
             <h3>Output</h3>
