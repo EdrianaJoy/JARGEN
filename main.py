@@ -6,3 +6,8 @@ if __name__ == '__main__':
         print("\n".join([str(item) for item in parse(argv[1])]))  # Output the result of parse
     else:
         print("No input provided.")
+
+
+# source .venv/Scripts/activate
+# cd myproject
+# py manage.py runserver

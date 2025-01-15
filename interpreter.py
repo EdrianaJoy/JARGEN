@@ -153,10 +153,6 @@ Bracket_Names = [
     "Close Curly Brace"
 ]
 
-# Insert All Token Types of JARGEN
-# Example: Assignment_Operator = {=, +=, -=, *=, /=, %=}
-# You can use other techniques other than explicitly typing it if it is more efficient
-
 # def lexer(contents):
 #     lines = contents.split('\n')
 #     # special_char = set(string.punctuation) - {'"', "'"}
@@ -365,10 +361,6 @@ def lexer(contents):
                 else:
                     raise ValueError(f"Error: Invalid character '{char}' at line {line_no}, position {i + 1}.")
 
-            # except ValueError as e:
-            #     print(f"Exception caught: {e}")  # Handle the exception or log it
-            #     break  # Optionally break the loop if an error is found
-
             for i, token in enumerate(tokens):
                 token_type, token_value = token
                 if token_value in {"spill", "post", "sus", "forreal", "mood", "talk"}:
@@ -377,11 +369,14 @@ def lexer(contents):
                         j = i + 2  # Start checking after '('
                         while j < len(tokens) and tokens[j][1] != ')':
                             j += 1
-
-                        # If j is within bounds and we found a closing parenthesis ')'
+                        
                         if j < len(tokens) and tokens[j][1] == ')':
-                            # Valid format: 'spill' or 'post' followed by '(' <content> ')'
-                            continue
+                            if token_value in {"sus", "forreal", "mood", "talk"} and j != i + 2:
+                                continue
+                            elif token_value in {"spill", "post"}:
+                                continue
+                            else:
+                                raise ValueError(f"Error: Missing parameters for '{token_value}' at line {line_no}.")
                         else:
                             # Missing closing parenthesis ')'
                             raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_no}.")
@@ -393,20 +388,11 @@ def lexer(contents):
             nLines.append(tokens)
     except ValueError as e:
         print(f"Exception caught: {e}")  # Handle the exception or log it
-        # break  # Optionally break the loop if an error is found
         return []
 
     return nLines
 
 def parse(contents):
-    # try:
-    #     with open(file, "r") as f:
-    #         contents = f.read()
-    # except FileNotFoundError:
-    #     raise FileNotFoundError(f"Error: File '{file}' not found.")
-    # except IOError as e:
-    #     raise IOError(f"Error: Unable to read the file. {e}")
-    
     # try:
     #     tokens = lexer(contents)
     # except ValueError as e:
