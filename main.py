@@ -9,5 +9,6 @@ if __name__ == '__main__':
 
 
 # source .venv/Scripts/activate
+# django-admin startproject myproject
 # cd myproject
 # py manage.py runserver
