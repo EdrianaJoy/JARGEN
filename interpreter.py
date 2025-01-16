@@ -162,7 +162,7 @@ def lexer(contents):
             while i < len(chars):
                 char = chars[i]
 
-                # Handle numbers with decimals
+                # Handle numbers
                 if char.isdigit() or (char == '.' and i + 1 < len(chars) and chars[i + 1].isdigit()):
                     start_index = i
                     dot_count = 0
@@ -332,6 +332,24 @@ def lexer(contents):
                             raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_no}.")
                     else:
                         raise ValueError(f"Error: Invalid format at line {line_no}. Expected '(' after '{token_value}'.")
+                
+                elif token_value == "else":
+                    if i + 1 < len(tokens):
+                        if tokens[i + 1][1] == '{':
+                            k = i + 2
+                            has_statements = False
+                            while k < len(tokens):
+                                if tokens[k][1] == '}':
+                                    if not has_statements:
+                                        raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
+                                    break
+                                elif tokens[k][1] != '}':
+                                    has_statements = True
+                                k += 1
+                            else:
+                                raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
+                    else:
+                        raise ValueError(f"Error: Expected statement after '{token_value}' at line {line_no}.")
 
                 elif token_type == "Function":
                     
