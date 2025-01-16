@@ -228,6 +228,7 @@ def lexer(contents):
                     tokens.append((bracket_name, char))
                     i += 1
                 
+                # Handle delimiters
                 elif char in Delimiters:
                     delimeter_name = Delimiter_Names[Delimiters.index(char)]
                     tokens.append((delimeter_name, char))
