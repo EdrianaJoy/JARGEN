@@ -151,7 +151,6 @@ def lexer(contents):
         raise ValueError("Error: Input content is empty.")
 
     lines = contents.split('\n')
-    all_tokens = []
     nLines = []
 
     try:
