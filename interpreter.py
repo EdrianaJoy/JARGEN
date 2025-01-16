@@ -241,33 +241,51 @@ def lexer(contents):
                 # Invalid characters
                 else:
                     raise ValueError(f"Error: Invalid character '{char}' at line {line_no}, position {i + 1}.")
+        
+            nLines.append(tokens)
 
-            for i, token in enumerate(tokens):
-                token_type, token_value = token
+        for line_index, nLine in enumerate(nLines, start=1):
+            for i, token in enumerate(nLine): 
+                token_type, token_value = token  
+
                 if token_value in {"spill", "post", "sus", "forreal", "mood", "talk"}:
-                    if i + 1 < len(tokens) and tokens[i + 1][1] == '(':
+                    if i + 1 < len(nLine) and nLine[i + 1][1] == '(':
                         j = i + 2
                         params = []
-                        while j < len(tokens) and tokens[j][1] != ')':
-                            params.append(tokens[j])
+                        while j < len(nLine) and nLine[j][1] != ')':
+                            params.append(nLine[j])
                             j += 1
                         
-                        if j < len(tokens) and tokens[j][1] == ')':
+                        if j < len(nLine) and nLine[j][1] == ')':
                             if token_value in {"sus", "forreal", "mood", "talk"} and j != i + 2:
-                                if j + 1 < len(tokens):
-                                    if tokens[j + 1][1] == '{':
-                                        k = j + 2
-                                        has_statements = False
-                                        while k < len(tokens):
-                                            if tokens[k][1] == '}':
-                                                if not has_statements:
-                                                    raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
-                                                break
-                                            elif tokens[k][1] != '}':
-                                                has_statements = True
-                                            k += 1
-                                        else:
+                                if j + 1 < len(nLine):
+                                    if nLine[j + 1][1] == '{':
+                                        line_pointer = line_index - 1
+                                        token_pointer = 0
+                                        statements = []
+                                        while line_pointer < len(nLines):
+                                            while token_pointer < len(nLines[line_pointer]):
+                                                statements.append(nLines[line_pointer][token_pointer][1])
+                                                if nLines[line_pointer][token_pointer][1] == '}':
+                                                    has_Closing = True
+                                                    if statements[-2] != '{':
+                                                        has_Statement = True
+                                                    else:
+                                                        has_Statement = False
+                                                else:
+                                                    has_Closing = False
+                                                    
+                                                token_pointer += 1
+                                            
+                                            line_pointer += 1
+                                            token_pointer = 0
+                                        
+                                        if has_Closing == False:
                                             raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
+
+                                        if has_Statement == False:
+                                            raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
+
                                     
                                     if token_value == "sus":
                                         if len(params) != 3:
@@ -322,6 +340,8 @@ def lexer(contents):
                                             raise ValueError(f"Error: Invalid operator in 'talk' at line {line_no}.")
                                         if para3[0] not in {"Integer", "Float Number", "Identifier"}:
                                             raise ValueError(f"Error: Invalid parameter in 'talk' at line {line_no}.")
+                            
+
                                 else:
                                     raise ValueError(f"Error: Expected statement after '{token_value}' at line {line_no}.")
                             elif token_value in {"spill", "post"}:
@@ -332,22 +352,35 @@ def lexer(contents):
                             raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_no}.")
                     else:
                         raise ValueError(f"Error: Invalid format at line {line_no}. Expected '(' after '{token_value}'.")
-                
+                        
                 elif token_value == "else":
-                    if i + 1 < len(tokens):
-                        if tokens[i + 1][1] == '{':
-                            k = i + 2
-                            has_statements = False
-                            while k < len(tokens):
-                                if tokens[k][1] == '}':
-                                    if not has_statements:
-                                        raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
-                                    break
-                                elif tokens[k][1] != '}':
-                                    has_statements = True
-                                k += 1
-                            else:
+                    if i + 1 < len(nLine):
+                        if nLine[i + 1][1] == '{':
+                            line_pointer = line_index - 1
+                            token_pointer = 0
+                            statements = []
+                            while line_pointer < len(nLines):
+                                while token_pointer < len(nLines[line_pointer]):
+                                    statements.append(nLines[line_pointer][token_pointer][1])
+                                    if nLines[line_pointer][token_pointer][1] == '}':
+                                        has_Closing = True
+                                        if statements[-2] != '{':
+                                            has_Statement = True
+                                        else:
+                                            has_Statement = False
+                                    else:
+                                        has_Closing = False
+                                        
+                                    token_pointer += 1
+                                
+                                line_pointer += 1
+                                token_pointer = 0
+                            
+                            if has_Closing == False:
                                 raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
+
+                            if has_Statement == False:
+                                raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
                     else:
                         raise ValueError(f"Error: Expected statement after '{token_value}' at line {line_no}.")
 
@@ -355,46 +388,58 @@ def lexer(contents):
                     
                     j = i + 2 
                     params = []
-                    while j < len(tokens) and tokens[j][1] != ')':
-                        params.append(tokens[j])
+                    while j < len(nLine) and nLine[j][1] != ')':
+                        params.append(nLine[j])
                         j += 1
                     
-                    if j < len(tokens) and tokens[j][1] == ')':
-                        if j + 1 < len(tokens):
-                            if tokens[j + 1][1] == '{':
-                                k = j + 2
-                                has_statements = False
-                                while k < len(tokens):
-                                    if tokens[k][1] == '}':
-                                        if not has_statements:
-                                            raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
-                                        break
-                                    elif tokens[k][1] != '}':
-                                        has_statements = True
-                                    k += 1
-                                else:
+                    if j < len(nLine) and nLine[j][1] == ')':
+                        if j + 1 < len(nLine):
+                            if nLine[j + 1][1] == '{':
+                                line_pointer = line_index - 1
+                                token_pointer = 0
+                                statements = []
+                                while line_pointer < len(nLines):
+                                    while token_pointer < len(nLines[line_pointer]):
+                                        statements.append(nLines[line_pointer][token_pointer][1])
+                                        if nLines[line_pointer][token_pointer][1] == '}':
+                                            has_Closing = True
+                                            if statements[-2] != '{':
+                                                has_Statement = True
+                                            else:
+                                                has_Statement = False
+                                        else:
+                                            has_Closing = False
+                                            
+                                        token_pointer += 1
+                                    
+                                    line_pointer += 1
+                                    token_pointer = 0
+                                
+                                if has_Closing == False:
                                     raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
+
+                                if has_Statement == False:
+                                    raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
+                                
                         else:
                             raise ValueError(f"Error: Expected statement after '{token_value}' at line {line_no}.")
                         
-                        if i + 1 < len(tokens) and tokens[i - 1][1] in {"[", ","}:
+                        if i + 1 < len(nLine) and nLine[i - 1][1] in {"[", ","}:
                             continue
-                        elif i + 1 < len(tokens) and tokens[i - 1][1] != "trend":
+                        elif i + 1 < len(nLine) and nLine[i - 1][1] != "trend":
                             raise ValueError(f"Error: Invalid format of function at line {line_no}.")
                     else:
                         raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_no}.")
 
                     k = 0
                     while k < len(params):
-                        if params[k][0] not in {"Identifier", "Comma"}:
+                        if params[k][0] not in {"Identifier", "Comma", "Reserved Word", "Integer", "Float Number"}:
                             raise ValueError(f"Error: Invalid parameter in '{token_value}' at line {line_no}.")
                         k += 1
                 
                 elif token_value == "trend":
-                    if i + 1 < len(tokens) and tokens[i + 1][0] != "Function":
+                    if i + 1 < len(nLine) and nLine[i + 1][0] != "Function":
                         raise ValueError(f"Error: Invalid use of keyword '{token_value}' at line {line_no}.")
-
-            nLines.append(tokens)
 
     except ValueError as e:
         print(f"Exception caught: {e}")
@@ -629,3 +674,158 @@ def parse(contents):
         #         else:
         #             # If the next token is not an opening parenthesis, raise an error
         #             raise ValueError(f"Error: Invalid format at line {line_no}. Expected '(' after '{token_value}'.")
+
+
+                    # for i, token in enumerate(tokens):
+            #     token_type, token_value = token
+            #     if token_value in {"spill", "post", "sus", "forreal", "mood", "talk"}:
+            #         if i + 1 < len(tokens) and tokens[i + 1][1] == '(':
+            #             j = i + 2
+            #             params = []
+            #             while j < len(tokens) and tokens[j][1] != ')':
+            #                 params.append(tokens[j])
+            #                 j += 1
+                        
+            #             if j < len(tokens) and tokens[j][1] == ')':
+            #                 if token_value in {"sus", "forreal", "mood", "talk"} and j != i + 2:
+            #                     if j + 1 < len(tokens):
+            #                         if tokens[j + 1][1] == '{':
+            #                             k = j + 2
+            #                             has_statements = False
+            #                             while k < len(tokens):
+            #                                 if tokens[k][1] == '}':
+            #                                     if not has_statements:
+            #                                         raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
+            #                                     break
+            #                                 elif tokens[k][1] != '}':
+            #                                     has_statements = True
+            #                                 k += 1
+            #                             else:
+            #                                 raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
+                                    
+            #                         if token_value == "sus":
+            #                             if len(params) != 3:
+            #                                 raise ValueError(f"Error: Invalid parameters inside parentheses for 'sus' at line {line_no}.")
+            #                             para1, para2, para3 = params
+            #                             if para1[0] not in {"Integer", "Float Number", "Identifier"}:
+            #                                 raise ValueError(f"Error: Invalid parameter in 'sus' at line {line_no}.")
+            #                             if para2[0] not in {"Logical NOT Operator", "Logical AND Operator", "Logical OR Operator", "Equal To Operator", "Not Equal To Operator", "Greater Than Operator", "Less Than Operator", "Greater Than or Equal To Operator", "Less Than or Equal To Operator"}:
+            #                                 raise ValueError(f"Error: Invalid operator in 'sus' at line {line_no}.")
+            #                             if para3[0] not in {"Integer", "Float Number", "Identifier"}:
+            #                                 raise ValueError(f"Error: Invalid parameter in 'sus' at line {line_no}.")
+                                    
+            #                         elif token_value == "mood":
+            #                             if len(params) != 1:
+            #                                 raise ValueError(f"Error: Invalid parameters inside parentheses for 'sus' at line {line_no}.")
+            #                             para1 = params[0][0]
+            #                             if para1 not in {"Integer", "Float Number", "Identifier"}:
+            #                                 raise ValueError(f"Error: Invalid parameter in 'mood' at line {line_no}.")
+                                    
+            #                         elif token_value == "forreal":
+            #                             if len(params) != 10:
+            #                                 raise ValueError(f"Error: Invalid parameters inside parentheses for 'forreal' at line {line_no}.")
+            #                             para1, para2, para3, para4, para5, para6, para7, para8, para9, para10 = params
+            #                             if para1[0] not in {"Integer", "Float Number", "Identifier"}:
+            #                                 raise ValueError(f"Error: Invalid parameter in 'forreal' at line {line_no}.")
+            #                             if para2[0] not in {"Equal Sign", "Addition Assignment", "Subtraction Assignment", "Multiplication Assignment", "Division Assignment", "Remainder Assignment", "Exponentiation Assignment"}:
+            #                                 raise ValueError(f"Error: Invalid operator in 'forreal' at line {line_no}.")
+            #                             if para3[0] not in {"Integer", "Float Number", "Identifier"}:
+            #                                 raise ValueError(f"Error: Invalid parameter in 'forreal' at line {line_no}.")
+            #                             if para4[0] != "Semi-colon":
+            #                                 raise ValueError(f"Error: Missing semi-colon in 'forreal' at line {line_no}.")
+            #                             if para5[0] not in {"Integer", "Float Number", "Identifier"}:
+            #                                 raise ValueError(f"Error: Invalid parameter in 'forreal' at line {line_no}.")
+            #                             if para6[0] not in {"Logical NOT Operator", "Logical AND Operator", "Logical OR Operator", "Equal To Operator", "Not Equal To Operator", "Greater Than Operator", "Less Than Operator", "Greater Than or Equal To Operator", "Less Than or Equal To Operator"}:
+            #                                 raise ValueError(f"Error: Invalid operator in 'forreal' at line {line_no}.")
+            #                             if para7[0] not in {"Integer", "Float Number", "Identifier"}:
+            #                                 raise ValueError(f"Error: Invalid parameter in 'forreal' at line {line_no}.")
+            #                             if para8[0] != "Semi-colon":
+            #                                 raise ValueError(f"Error: Missing semi-colon in 'forreal' at line {line_no}.")
+            #                             if para9[0] not in {"Integer", "Float Number", "Identifier"}:
+            #                                 raise ValueError(f"Error: Invalid parameter in 'forreal' at line {line_no}.")
+            #                             if para10[0] not in {"Increment Operator", "Decrement Operator"}:
+            #                                 raise ValueError(f"Error: Invalid operator in 'forreal' at line {line_no}.")
+                                    
+            #                         elif token_value == "talk":
+            #                             if len(params) != 3:
+            #                                 raise ValueError(f"Error: Invalid parameters inside parentheses for 'talk' at line {line_no}.")
+            #                             para1, para2, para3 = params
+            #                             if para1[0] not in {"Integer", "Float Number", "Identifier"}:
+            #                                 raise ValueError(f"Error: Invalid parameter in 'talk' at line {line_no}.")
+            #                             if para2[0] not in {"Logical NOT Operator", "Logical AND Operator", "Logical OR Operator", "Equal To Operator", "Not Equal To Operator", "Greater Than Operator", "Less Than Operator", "Greater Than or Equal To Operator", "Less Than or Equal To Operator"}:
+            #                                 raise ValueError(f"Error: Invalid operator in 'talk' at line {line_no}.")
+            #                             if para3[0] not in {"Integer", "Float Number", "Identifier"}:
+            #                                 raise ValueError(f"Error: Invalid parameter in 'talk' at line {line_no}.")
+            #                     else:
+            #                         raise ValueError(f"Error: Expected statement after '{token_value}' at line {line_no}.")
+            #                 elif token_value in {"spill", "post"}:
+            #                     continue
+            #                 else:
+            #                     raise ValueError(f"Error: Missing parameters for '{token_value}' at line {line_no}.")
+            #             else:
+            #                 raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_no}.")
+            #         else:
+            #             raise ValueError(f"Error: Invalid format at line {line_no}. Expected '(' after '{token_value}'.")
+                
+            #     elif token_value == "else":
+            #         if i + 1 < len(tokens):
+            #             if tokens[i + 1][1] == '{':
+            #                 k = i + 2
+            #                 has_statements = False
+            #                 while k < len(tokens):
+            #                     if tokens[k][1] == '}':
+            #                         if not has_statements:
+            #                             raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
+            #                         break
+            #                     elif tokens[k][1] != '}':
+            #                         has_statements = True
+            #                     k += 1
+            #                 else:
+            #                     raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
+            #         else:
+            #             raise ValueError(f"Error: Expected statement after '{token_value}' at line {line_no}.")
+
+            #     elif token_type == "Function":
+                    
+            #         j = i + 2 
+            #         params = []
+            #         while j < len(tokens) and tokens[j][1] != ')':
+            #             params.append(tokens[j])
+            #             j += 1
+                    
+            #         if j < len(tokens) and tokens[j][1] == ')':
+            #             if j + 1 < len(tokens):
+            #                 if tokens[j + 1][1] == '{':
+            #                     k = j + 2
+            #                     has_statements = False
+            #                     while k < len(tokens):
+            #                         if tokens[k][1] == '}':
+            #                             if not has_statements:
+            #                                 raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
+            #                             break
+            #                         elif tokens[k][1] != '}':
+            #                             has_statements = True
+            #                         k += 1
+            #                     else:
+            #                         raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
+            #             else:
+            #                 raise ValueError(f"Error: Expected statement after '{token_value}' at line {line_no}.")
+                        
+            #             if i + 1 < len(tokens) and tokens[i - 1][1] in {"[", ","}:
+            #                 continue
+            #             elif i + 1 < len(tokens) and tokens[i - 1][1] != "trend":
+            #                 raise ValueError(f"Error: Invalid format of function at line {line_no}.")
+            #         else:
+            #             raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_no}.")
+
+            #         k = 0
+            #         while k < len(params):
+            #             if params[k][0] not in {"Identifier", "Comma"}:
+            #                 raise ValueError(f"Error: Invalid parameter in '{token_value}' at line {line_no}.")
+            #             k += 1
+                
+            #     elif token_value == "trend":
+            #         if i + 1 < len(tokens) and tokens[i + 1][0] != "Function":
+            #             raise ValueError(f"Error: Invalid use of keyword '{token_value}' at line {line_no}.")
+
+            # nLines.append(tokens)
