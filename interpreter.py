@@ -1,5 +1,4 @@
 import re as regex
-import string
 
 # 1-5. OPERATOR SYMBOLS
 Operator_Symbols = [
@@ -117,20 +116,14 @@ Noise_Words = {
 
 # 9. Delimiters
 Delimiters = [
-    # "=",
     ",",
     ";",
-    # "+",
-    # '""',
     "@"
 ]
 
 Delimiter_Names = [
-    # "Equal Sign",
     "Comma",
     "Semi-colon",
-    # "Add Sign",
-    # "Open Close Quotation",
     "At Sign"
 ]
 
@@ -253,8 +246,7 @@ def lexer(contents):
                 token_type, token_value = token
                 if token_value in {"spill", "post", "sus", "forreal", "mood", "talk"}:
                     if i + 1 < len(tokens) and tokens[i + 1][1] == '(':
-                        # Now check if there is content between '(' and ')'
-                        j = i + 2  # Start checking after '('
+                        j = i + 2
                         params = []
                         while j < len(tokens) and tokens[j][1] != ')':
                             params.append(tokens[j])
@@ -262,9 +254,9 @@ def lexer(contents):
                         
                         if j < len(tokens) and tokens[j][1] == ')':
                             if token_value in {"sus", "forreal", "mood", "talk"} and j != i + 2:
-                                if j + 1 < len(tokens):  # Ensure there is something after ')'
+                                if j + 1 < len(tokens):
                                     if tokens[j + 1][1] == '{':
-                                        k = j + 2  # Start checking after '{'
+                                        k = j + 2
                                         has_statements = False
                                         while k < len(tokens):
                                             if tokens[k][1] == '}':
@@ -272,7 +264,7 @@ def lexer(contents):
                                                     raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
                                                 break
                                             elif tokens[k][1] != '}':
-                                                has_statements = True  # At least one statement inside the block
+                                                has_statements = True
                                             k += 1
                                         else:
                                             raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
@@ -337,24 +329,22 @@ def lexer(contents):
                             else:
                                 raise ValueError(f"Error: Missing parameters for '{token_value}' at line {line_no}.")
                         else:
-                            # Missing closing parenthesis ')'
                             raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_no}.")
                     else:
-                        # If the next token is not an opening parenthesis, raise an error
                         raise ValueError(f"Error: Invalid format at line {line_no}. Expected '(' after '{token_value}'.")
 
                 elif token_type == "Function":
                     
-                    j = i + 2  # Start checking after '('
+                    j = i + 2 
                     params = []
                     while j < len(tokens) and tokens[j][1] != ')':
                         params.append(tokens[j])
                         j += 1
                     
                     if j < len(tokens) and tokens[j][1] == ')':
-                        if j + 1 < len(tokens):  # Ensure there is something after ')'
+                        if j + 1 < len(tokens):
                             if tokens[j + 1][1] == '{':
-                                k = j + 2  # Start checking after '{'
+                                k = j + 2
                                 has_statements = False
                                 while k < len(tokens):
                                     if tokens[k][1] == '}':
@@ -362,7 +352,7 @@ def lexer(contents):
                                             raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
                                         break
                                     elif tokens[k][1] != '}':
-                                        has_statements = True  # At least one statement inside the block
+                                        has_statements = True
                                     k += 1
                                 else:
                                     raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
@@ -374,7 +364,6 @@ def lexer(contents):
                         elif i + 1 < len(tokens) and tokens[i - 1][1] != "trend":
                             raise ValueError(f"Error: Invalid format of function at line {line_no}.")
                     else:
-                        # Missing closing parenthesis ')'
                         raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_no}.")
 
                     k = 0
@@ -390,20 +379,18 @@ def lexer(contents):
             nLines.append(tokens)
 
     except ValueError as e:
-        print(f"Exception caught: {e}")  # Handle the exception or log it
+        print(f"Exception caught: {e}")
         return []
 
     return nLines
 
 def parse(contents):
-    # try:
-    #     tokens = lexer(contents)
-    # except ValueError as e:
-    #     print(e)
-    #     return []
+    try:
+        tokens = lexer(contents)
+    except ValueError as e:
+        print(e)
+        return []
     
-    # return tokens
-    tokens = lexer(contents)
     return tokens
 
 
