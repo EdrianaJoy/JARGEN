@@ -284,7 +284,7 @@ def lexer(contents):
                                             raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
 
                                         if has_Statement == False:
-                                            raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
+                                            raise ValueError(f"Error: Empty block at line {line_index}.")
 
                                     
                                     if token_value == "sus":
@@ -347,9 +347,9 @@ def lexer(contents):
                             elif token_value in {"spill", "post"}:
                                 continue
                             else:
-                                raise ValueError(f"Error: Missing parameters for '{token_value}' at line {line_no}.")
+                                raise ValueError(f"Error: Missing parameters for '{token_value}' at line {line_index}.")
                         else:
-                            raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_no}.")
+                            raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_index}.")
                     else:
                         raise ValueError(f"Error: Invalid format at line {line_no}. Expected '(' after '{token_value}'.")
                         
