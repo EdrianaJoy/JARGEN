@@ -1,3 +1,6 @@
+from interpreter import *
+from syntax_analyzer import *
+
 def syntax_analyze(source_code):
     # 1) Call your parse() function which wraps the lexer
     token_lines = parse(source_code)  
@@ -33,14 +36,8 @@ def print_parse_tree(node, indent=0):
 # Quick test code
 if __name__ == "__main__":
     code_sample = """
-    flex x = 10;
-    sus(x) {
-      spill("hello");
-    } else {
-      spill("world");
-    }
-    forreal(x; x; x) {
-      post(y);
+    forreal (i = 1; i <= 5; i++) {
+        spill(i)
     }
     """
 
