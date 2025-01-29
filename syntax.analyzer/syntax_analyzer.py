@@ -771,7 +771,7 @@ class SyntaxAnalyzer:
                 "Greater Than or Equal To Operator",
                 "Less Than or Equal To Operator"
             }:
-            op_token = self.current_token  # e.g. ("Operator", ">=")
+            op_token = self.current_token
             self.advance()
 
             right_node = self.parse_primary()
