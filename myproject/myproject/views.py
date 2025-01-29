@@ -30,4 +30,4 @@ def lexical_analyzer(request):
             except Exception as e:
                 result = f"An error occurred: {e}"
     
-    return render(request, 'lexical-analyzer.html', {'user_input': user_input, 'result': result})
+    return render(request, 'syntax-analyzer.html', {'user_input': user_input, 'result': result})

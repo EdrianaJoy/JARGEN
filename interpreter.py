@@ -88,7 +88,8 @@ Keywords = [
     "reply", # Inspired by return: Exits a function with a value (JavaScript, Python).
     "post", # Inspired by scan: Reads user input ('prompt()' for JavaScript, 'input()' for Python).
     "talk", # Inspired by while: Loops while a condition is true (JavaScript, Python).
-    "scene" # Inspired by case: A condition in a switch (JavaScript).
+    "scene", # Inspired by case: A condition in a switch (JavaScript).
+    "line"
 ]
 
 # 7. Reserved Words
@@ -151,6 +152,7 @@ def lexer(contents):
         raise ValueError("Error: Input content is empty.")
 
     lines = contents.split('\n')
+    n_line_count = len(lines) # We'll need this for 'line' validation
     nLines = []
 
     try:
@@ -384,62 +386,229 @@ def lexer(contents):
                     else:
                         raise ValueError(f"Error: Expected statement after '{token_value}' at line {line_no}.")
 
+                #
+                # --------------------------------------
+                # NEW/UPDATED SECTION: Handle "trend" & "Function"
+                # --------------------------------------
+                #
+                elif token_value == "trend":
+                    # Must be followed by a function token
+                    if i + 1 < len(nLine):
+                        next_type, next_val = nLine[i + 1]
+                        if next_type != "Function":
+                            raise ValueError(
+                                f"Error: Invalid use of keyword '{token_value}' at line {line_no}. "
+                                f"Expected a function name."
+                            )
+                        # If it's indeed a Function, we let the separate `Function` check handle
+                        # the parentheses and block. Just ensure no further immediate checks here.
+                    else:
+                        raise ValueError(
+                            f"Error: 'trend' with no function name at line {line_no}."
+                        )
+
                 elif token_type == "Function":
-                    
-                    j = i + 2 
-                    params = []
-                    while j < len(nLine) and nLine[j][1] != ')':
-                        params.append(nLine[j])
-                        j += 1
-                    
-                    if j < len(nLine) and nLine[j][1] == ')':
-                        if j + 1 < len(nLine):
-                            if nLine[j + 1][1] == '{':
-                                line_pointer = line_index - 1
-                                token_pointer = 0
-                                statements = []
-                                while line_pointer < len(nLines):
-                                    while token_pointer < len(nLines[line_pointer]):
-                                        statements.append(nLines[line_pointer][token_pointer][1])
-                                        if nLines[line_pointer][token_pointer][1] == '}':
-                                            has_Closing = True
-                                            if statements[-2] != '{':
-                                                has_Statement = True
-                                            else:
-                                                has_Statement = False
-                                        else:
-                                            has_Closing = False
-                                            
-                                        token_pointer += 1
-                                    
+                    # Check if preceded by "trend" => function definition
+                    if i - 1 >= 0 and nLine[i - 1][1] == "trend":
+                        # We have "trend <FunctionName>(...) { ... reply ... }"
+                        # Check parentheses
+                        if i + 1 < len(nLine) and nLine[i + 1][1] == '(':
+                            # gather parameters until ')'
+                            j = i + 2
+                            params = []
+                            while j < len(nLine) and nLine[j][1] != ')':
+                                params.append(nLine[j])
+                                j += 1
+                            if j >= len(nLine) or nLine[j][1] != ')':
+                                raise ValueError(
+                                    f"Error: Missing closing parenthesis in function definition at line {line_no}."
+                                )
+
+                            # Next must be '{'
+                            if j + 1 >= len(nLine) or nLine[j + 1][1] != '{':
+                                raise ValueError(
+                                    f"Error: Missing '{{' after function parameters at line {line_no}."
+                                )
+
+                            # Now check the block for 'reply'
+                            line_pointer = line_index - 1
+                            token_pointer = j + 1  # position of '{' in the same line
+                            statements = []
+                            has_Closing = False
+                            found_reply = False
+
+                            while line_pointer < len(nLines) and not has_Closing:
+                                while token_pointer < len(nLines[line_pointer]):
+                                    tk_val = nLines[line_pointer][token_pointer][1]
+                                    statements.append(tk_val)
+
+                                    if tk_val == 'reply':
+                                        found_reply = True
+
+                                    if tk_val == '}':
+                                        has_Closing = True
+                                        # old code checks if block is empty or not
+                                        # we also need to ensure 'reply' was found
+                                        break
+
+                                    token_pointer += 1
+
+                                if not has_Closing:
                                     line_pointer += 1
                                     token_pointer = 0
-                                
-                                if has_Closing == False:
-                                    raise ValueError(f"Error: Missing closing bracket for block starting at line {line_no}.")
 
-                                if has_Statement == False:
-                                    raise ValueError(f"Error: Empty block after '{token_value}' at line {line_no}.")
-                                
+                            if not has_Closing:
+                                raise ValueError(
+                                    f"Error: Missing '}}' to close function definition at or after line {line_no}."
+                                )
+                            if not found_reply:
+                                raise ValueError(
+                                    f"Error: Missing 'reply' statement in function at line {line_no}."
+                                )
+
                         else:
-                            raise ValueError(f"Error: Expected statement after '{token_value}' at line {line_no}.")
-                        
-                        if i + 1 < len(nLine) and nLine[i - 1][1] in {"[", ","}:
-                            continue
-                        elif i + 1 < len(nLine) and nLine[i - 1][1] != "trend":
-                            raise ValueError(f"Error: Invalid format of function at line {line_no}.")
+                            raise ValueError(
+                                f"Error: Missing parentheses after function name at line {line_no}."
+                            )
                     else:
-                        raise ValueError(f"Error: Missing closing parenthesis after '{token_value}' at line {line_no}.")
+                        # If not preceded by "trend", treat as a normal function call: e.g. add(...)
+                        if i + 1 < len(nLine) and nLine[i + 1][1] == '(':
+                            # gather arguments until ')'
+                            j = i + 2
+                            while j < len(nLine) and nLine[j][1] != ')':
+                                j += 1
+                            if j >= len(nLine) or nLine[j][1] != ')':
+                                raise ValueError(
+                                    f"Error: Missing closing parenthesis in function call at line {line_no}."
+                                )
+                            # no block check needed for a simple call
+                            # but check format if the old code demands it
+                            if i - 1 >= 0 and nLine[i - 1][1] in {"[", ","}:
+                                # If inside array [ add(...), ... ], it's fine
+                                pass
+                            elif i - 1 >= 0 and nLine[i - 1][1] != "trend":
+                                # If it's a free-floating function but not preceded by trend, it’s valid call
+                                # (the old code might have forced an error if not preceded by trend—depending
+                                #  on your original spec. Adjust if needed.)
+                                pass
+                        else:
+                            raise ValueError(
+                                f"Error: Function call '{token_value}' missing '(' at line {line_no}."
+                            )
 
-                    k = 0
-                    while k < len(params):
-                        if params[k][0] not in {"Identifier", "Comma", "Reserved Word", "Integer", "Float Number"}:
-                            raise ValueError(f"Error: Invalid parameter in '{token_value}' at line {line_no}.")
-                        k += 1
-                
-                elif token_value == "trend":
-                    if i + 1 < len(nLine) and nLine[i + 1][0] != "Function":
-                        raise ValueError(f"Error: Invalid use of keyword '{token_value}' at line {line_no}.")
+                    # Extra parameter checks (similar to the old code’s approach)
+                    # For example, ensure the parameters are Identifier, Comma, etc.
+                    # if desired:
+                    # (Here simply demonstrating the pattern)
+                    # Gather the param tokens from i+2 up to ')', then check them
+                    # If i+1 is '('
+                    if i + 1 < len(nLine) and nLine[i + 1][1] == '(':
+                        param_start = i + 2
+                        while param_start < len(nLine) and nLine[param_start][1] != ')':
+                            if nLine[param_start][0] not in {
+                                "Identifier", "Comma", "Reserved Word", "Keyword", "Integer", "Float Number"
+                            }:
+                                raise ValueError(
+                                    f"Error: Invalid parameter in function '{token_value}' at line {line_no}."
+                                )
+                            param_start += 1
+
+                #
+                # --------------------------------------
+                # NEW/UPDATED SECTION: Handle 'line = [ integer, ... ]'
+                # --------------------------------------
+                #
+                elif token_value == "line":
+                    # Expect: line = [ integer, integer, ... ]
+                    if i + 1 < len(nLine) and nLine[i + 1][1] == '=':
+                        if i + 2 < len(nLine) and nLine[i + 2][1] == '[':
+                            # gather integers until ']'
+                            j = i + 3
+                            while j < len(nLine) and nLine[j][1] != ']':
+                                tok_t, tok_v = nLine[j]
+                                if tok_t == "Integer":
+                                    # Validate the integer does not exceed the line count
+                                    int_val = int(tok_v)
+                                    if int_val < 1 or int_val > n_line_count:
+                                        raise ValueError(
+                                            f"Error: 'line' usage with out-of-range line number {tok_v} at line {line_index}. "
+                                            f"Max lines = {n_line_count}."
+                                        )
+                                elif tok_t == "Comma":
+                                    pass
+                                else:
+                                    raise ValueError(
+                                        f"Error: Invalid token '{tok_v}' in 'line' bracket at line {line_no}. "
+                                        f"Expected integers separated by commas."
+                                    )
+                                j += 1
+
+                            if j >= len(nLine) or nLine[j][1] != ']':
+                                raise ValueError(
+                                    f"Error: Missing closing ']' in 'line' declaration at line {line_no}."
+                                )
+                            # If we got here, the usage is valid
+                        else:
+                            raise ValueError(
+                                f"Error: Expected '[' after 'line =' at line {line_no}."
+                            )
+                    else:
+                        raise ValueError(
+                            f"Error: Expected '=' after 'line' keyword at line {line_no}."
+                        )
+
+                #
+                # --------------------------------------
+                # NEW/UPDATED SECTION: Handle array of multiple function calls
+                # e.g. arithmetic = [ add(...), subtract(...), ... ]
+                # --------------------------------------
+                #
+                elif token_type == "Identifier":
+                    # Check if next is '='
+                    if i + 1 < len(nLine):
+                        next_op_type, next_op_val = nLine[i + 1]
+                        if next_op_val == '=':
+                            # Then check if i+2 is '[' => multiple function calls array
+                            if i + 2 < len(nLine) and nLine[i + 2][1] == '[':
+                                # Gather everything until ']'
+                                j = i + 3
+                                while j < len(nLine) and nLine[j][1] != ']':
+                                    f_type, f_val = nLine[j]
+                                    if f_type == "Function":
+                                        # Expect '(' after it
+                                        if j + 1 < len(nLine) and nLine[j + 1][1] == '(':
+                                            # skip until we find ')'
+                                            k = j + 2
+                                            while k < len(nLine) and nLine[k][1] != ')':
+                                                k += 1
+                                            if k >= len(nLine) or nLine[k][1] != ')':
+                                                raise ValueError(
+                                                    f"Error: Missing ')' in multiple function call array at line {line_no}."
+                                                )
+                                            j = k + 1
+                                            continue
+                                        else:
+                                            raise ValueError(
+                                                f"Error: Function call '{f_val}' missing '(' in array at line {line_no}."
+                                            )
+                                    elif f_val == ',':
+                                        # just skip commas
+                                        j += 1
+                                        continue
+                                    else:
+                                        raise ValueError(
+                                            f"Error: Unexpected token '{f_val}' in multiple function calls array at line {line_no}."
+                                        )
+                                    j += 1
+
+                                if j >= len(nLine) or nLine[j][1] != ']':
+                                    raise ValueError(
+                                        f"Error: Missing closing ']' in multiple function calls array at line {line_no}."
+                                    )
+                                # If we get here, the usage is valid
+                            else:
+                                # Normal assignment to an identifier — not an array of function calls
+                                pass
 
     except ValueError as e:
         print(f"Exception caught: {e}")

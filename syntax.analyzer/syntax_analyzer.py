@@ -20,19 +20,10 @@ class ParseTreeNode:
 
 class SyntaxAnalyzer:
     def __init__(self, token_lines):
-        """
-        token_lines is expected to be a list of lists of tokens.
-        Each token is typically a tuple: (TokenType, TokenValue)
-        Example: ("Keyword", "sus"), ("Identifier", "grade"),
-                 ("Operator", ">="), ("Integer", "90"), ("Bracket", "("), etc.
-        """
         self.tokens = flatten_token_lines(token_lines)
         self.pos = 0
         self.current_token = self.tokens[self.pos] if self.tokens else None
         self.error_count = 0
-
-        for i, token in enumerate(self.tokens):
-            print(i, token)
 
     def advance(self):
         self.pos += 1
@@ -42,12 +33,6 @@ class SyntaxAnalyzer:
             self.current_token = None
 
     def match(self, expected_type=None, expected_value=None):
-        """
-        Attempt to match the current token to either an expected type or an expected value.
-        If both are provided, both must match.
-        If it matches, consume the token and return it.
-        Otherwise, report an error and return None.
-        """
         if not self.current_token:
             self.report_error(
                 f"Unexpected end of tokens. Expected {expected_type or expected_value}"
@@ -73,9 +58,6 @@ class SyntaxAnalyzer:
         self.error_count += 1
 
     def parse_program(self):
-        """
-        Entry point: parse a list of statements until tokens are exhausted.
-        """
         root = ParseTreeNode("PROGRAM")
         stmt_list = self.parse_statement_list()
         if stmt_list:
@@ -85,29 +67,21 @@ class SyntaxAnalyzer:
         return root
 
     def parse_statement_list(self):
-        """
-        Parse zero or more statements until we run out of tokens or cannot form a statement.
-        """
         node = ParseTreeNode("STATEMENT_LIST")
         while self.can_start_statement():
             stmt = self.parse_statement()
             if stmt:
                 node.add_child(stmt)
             else:
-                # If we fail to parse a statement, break to avoid infinite loops
                 break
         return node
 
     def can_start_statement(self):
-        """
-        Checks if the current token can begin a statement.
-        """
         if not self.current_token:
             return False
 
         ttype, tval = self.current_token
 
-        # Keywords that can start statements in this language
         if tval in {
             "flex", "nocap", "bet", "num",  # declarations
             "sus",                          # if
@@ -119,23 +93,22 @@ class SyntaxAnalyzer:
             "trend",                        # function def
             "else",                         # else / else if
             "reply",                        # return statement
+            "line",
         }:
             return True
 
-        # Identifiers can start an assignment or expression statement
         if ttype == "Identifier":
             return True
 
-        # A block can start with '{'
+        if ttype == "Function":
+            return True
+
         if tval == "{":
             return True
 
         return False
 
     def parse_statement(self):
-        """
-        Decide which kind of statement we are dealing with based on the current token.
-        """
         if not self.current_token:
             return None
 
@@ -173,13 +146,24 @@ class SyntaxAnalyzer:
         if tval == "trend":
             return self.parse_function_definition()
 
-        # Else — might be part of an else-if chain or a standalone else block
+        # Else
         if tval == "else":
             return self.parse_else_block()
 
         # Return statement
         if tval == "reply":
             return self.parse_return_stmt()
+
+        # "line" statement
+        if tval == "line":
+            return self.parse_line_statement()
+
+        # Function Call
+        if ttype == "Function":
+            call_node = self.parse_function_call()
+            stmt_node = ParseTreeNode("FUNCTION_STMT")
+            stmt_node.add_child(call_node)
+            return stmt_node
 
         # Block
         if tval == "{":
@@ -193,30 +177,74 @@ class SyntaxAnalyzer:
         return None
 
     # ----------------------------------------------------------------
+    # Line Statement
+    # ----------------------------------------------------------------
+    def parse_line_statement(self):
+        node = ParseTreeNode("LINE_STMT")
+
+        line_kw = self.match(expected_value="line")
+        if not line_kw:
+            return None
+
+        if not self.current_token:
+            return None
+        eq_type, eq_val = self.current_token
+        if eq_val == "=":
+            self.advance()
+        else:
+            self.report_error(f"Expected '=' after 'line'. Got {eq_type}, {eq_val}")
+            return None
+
+        bracket = self.match(expected_type="Open Bracket", expected_value="[")
+        if not bracket:
+            return None
+
+        elements_node = ParseTreeNode("LINE_ELEMENTS")
+        while self.current_token and self.current_token[1] != "]":
+
+            ttype, tval = self.current_token
+
+            if ttype == "Integer":
+                int_node = ParseTreeNode("INTEGER", tval)
+                elements_node.add_child(int_node)
+                self.advance()
+
+                if self.current_token and self.current_token[1] == ",":
+                    self.advance()  
+            else:
+
+                if tval == ",":
+                    self.advance() 
+                    continue
+                else:
+                    self.report_error(
+                        f"Expected integer or ']' in line statement, got {ttype}, {tval}"
+                    )
+                    return node
+
+        node.add_child(elements_node)
+
+        close_bracket = self.match(expected_type="Close Bracket", expected_value="]")
+        if not close_bracket:
+            return None
+
+        return node
+
+    # ----------------------------------------------------------------
     # Declarations
     # ----------------------------------------------------------------
     def parse_declaration(self):
-        """
-        Example:
-          flex age = 21
-          num count = 1
-          bet height = 5.9
-        No semicolon in the new language (except inside forreal loops).
-        """
         node = ParseTreeNode("DECLARATION")
         decl_kw = self.match(expected_type="Keyword")
         if not decl_kw:
             return None
-        node.value = decl_kw[1]  # e.g. "flex", "nocap", "bet", "num"
+        node.value = decl_kw[1] 
 
-        # Expect Identifier
         ident = self.match(expected_type="Identifier")
         if not ident:
             return None
         node.add_child(ParseTreeNode("IDENTIFIER", ident[1]))
 
-        # Optional '=' <expr>
-        # (We can also handle +=, -=, etc. if desired, just expand here.)
         if self.current_token and self.current_token[1] in {"=", "+=", "-=", "*=", "/=", "%=", "^="}:
             op_token = self.match()
             if not op_token:
@@ -227,7 +255,6 @@ class SyntaxAnalyzer:
             assign_node = ParseTreeNode("ASSIGN_OP", op_token[1])
             assign_node.add_child(ParseTreeNode("IDENTIFIER", ident[1]))
             assign_node.add_child(expr)
-            # In this scenario, the node is effectively both a DECLARATION and an assignment
             node.add_child(assign_node)
 
         return node
@@ -236,57 +263,34 @@ class SyntaxAnalyzer:
     # IF statement (supports else-if chain and else block)
     # ----------------------------------------------------------------
     def parse_if_stmt(self):
-        """
-        Handles if/else-if/else chains of the form:
-
-          sus (condition) {
-              ... 
-          }
-          else sus (otherCondition) {
-              ...
-          }
-          else {
-              ...
-          }
-        """
         chain_node = ParseTreeNode("IF_CHAIN")
 
-        # The first `sus(...) {}` is mandatory
         first_if = self.parse_single_if_block()
         if not first_if:
             return None
         chain_node.add_child(first_if)
 
-        # Now handle possible `else sus(...) {}` or `else {}` blocks
         while self.current_token and self.current_token[1] == "else":
-            # consume 'else'
+
             else_kw = self.match(expected_value="else")
             if not else_kw:
-                return chain_node  # or break
+                return chain_node  
 
-            # check if next token is 'sus' => else if
             if self.current_token and self.current_token[1] == "sus":
-                # parse another `sus(...) {}` block
                 elif_block = self.parse_single_if_block(is_elif=True)
                 if elif_block:
                     chain_node.add_child(elif_block)
                 else:
                     return chain_node
             else:
-                # plain else block
                 else_block = self.parse_else_block()
                 if else_block:
                     chain_node.add_child(else_block)
-                # once we have a plain else, there's no more chain
                 return chain_node
 
         return chain_node
 
     def parse_single_if_block(self, is_elif=False):
-        """
-        Parse `sus (expr) { statements }`.
-        Used by both an initial `if` and an `else if`.
-        """
         node_type = "IF_BLOCK" if not is_elif else "ELSE_IF_BLOCK"
         node = ParseTreeNode(node_type)
 
@@ -321,15 +325,10 @@ class SyntaxAnalyzer:
         return node
 
     def parse_else_block(self):
-        """
-        Parse `else { statements }`.
-        If the next token is 'sus', that's handled in parse_if_stmt (as else-if).
-        """
         node = ParseTreeNode("ELSE_BLOCK")
 
-        # If the current token is 'sus', that means else-if, which is handled above
         if self.current_token and self.current_token[1] == "sus":
-            return None  # let parse_if_stmt handle it
+            return None
 
         lb = self.match(expected_value="{")
         if not lb:
@@ -348,12 +347,6 @@ class SyntaxAnalyzer:
     # FOR statement
     # ----------------------------------------------------------------
     def parse_for_stmt(self):
-        """
-        forreal (i = 1; i <= 5; i++) {
-            spill(i)
-        }
-        Note: semicolons appear only inside `forreal(...)`.
-        """
         node = ParseTreeNode("FOR_STMT")
         fr_kw = self.match(expected_value="forreal")
         if not fr_kw:
@@ -363,29 +356,24 @@ class SyntaxAnalyzer:
         if not lp:
             return None
 
-        # first expression
         expr1 = self.parse_expression()
         if not expr1:
             return None
         node.add_child(expr1)
 
-        # semicolon
         sc1 = self.match(expected_value=";")
         if not sc1:
             return None
 
-        # second expression (condition)
         expr2 = self.parse_expression()
         if not expr2:
             return None
         node.add_child(expr2)
 
-        # semicolon
         sc2 = self.match(expected_value=";")
         if not sc2:
             return None
 
-        # third expression (increment)
         expr3 = self.parse_expression()
         if not expr3:
             return None
@@ -412,12 +400,6 @@ class SyntaxAnalyzer:
     # WHILE statement
     # ----------------------------------------------------------------
     def parse_while_stmt(self):
-        """
-        talk (count <= 3) {
-            spill(count)
-            count++
-        }
-        """
         node = ParseTreeNode("WHILE_STMT")
 
         talk_kw = self.match(expected_value="talk")
@@ -454,9 +436,6 @@ class SyntaxAnalyzer:
     # PRINT statement
     # ----------------------------------------------------------------
     def parse_print_stmt(self):
-        """
-        spill("Hello")
-        """
         node = ParseTreeNode("PRINT_STMT")
 
         sp_kw = self.match(expected_value="spill")
@@ -482,9 +461,6 @@ class SyntaxAnalyzer:
     # INPUT statement
     # ----------------------------------------------------------------
     def parse_input_stmt(self):
-        """
-        post(name)
-        """
         node = ParseTreeNode("INPUT_STMT")
 
         pst_kw = self.match(expected_value="post")
@@ -510,11 +486,6 @@ class SyntaxAnalyzer:
     # SWITCH statement
     # ----------------------------------------------------------------
     def parse_switch_stmt(self):
-        """
-        mood (expr) {
-            ...
-        }
-        """
         node = ParseTreeNode("SWITCH_STMT")
 
         sw_kw = self.match(expected_value="mood")
@@ -551,11 +522,6 @@ class SyntaxAnalyzer:
     # FUNCTION DEFINITION
     # ----------------------------------------------------------------
     def parse_function_definition(self):
-        """
-        trend add(num a, num b) {
-            reply a + b
-        }
-        """
         node = ParseTreeNode("FUNCTION_DEF")
 
         trend_kw = self.match(expected_value="trend")
@@ -565,7 +531,7 @@ class SyntaxAnalyzer:
         func_name = self.match(expected_type="Function")
         if not func_name:
             return None
-        node.value = func_name[1]  # e.g. "add"
+        node.value = func_name[1]
 
         lp = self.match(expected_value="(")
         if not lp:
@@ -578,7 +544,6 @@ class SyntaxAnalyzer:
         if not rp:
             return None
 
-        # parse the function body as a block
         block = self.parse_block()
         if block:
             node.add_child(block)
@@ -588,21 +553,16 @@ class SyntaxAnalyzer:
         return node
 
     def parse_param_list(self):
-        """
-        Parse parameters inside parentheses: e.g. (num a, num b)
-        """
         params_node = ParseTreeNode("PARAM_LIST")
 
-        # If next token is ")", empty parameter list
         while self.current_token and self.current_token[1] != ")":
-            # type must be a keyword (e.g. 'num', 'flex', etc.)
+
             if self.current_token[0] == "Keyword":
                 type_tok = self.match(expected_type="Keyword")
             else:
-                self.report_error("Parameter type must be a keyword (e.g. num).")
+                self.report_error("Parameter type must be a keyword (e.g. flex, nocap, bet).")
                 return params_node
 
-            # identifier
             ident_tok = self.match(expected_type="Identifier")
             if not ident_tok:
                 return params_node
@@ -612,7 +572,6 @@ class SyntaxAnalyzer:
             param_node.add_child(ParseTreeNode("IDENTIFIER", ident_tok[1]))
             params_node.add_child(param_node)
 
-            # if there's a comma, consume it and continue
             if self.current_token and self.current_token[1] == ",":
                 self.advance()
                 continue
@@ -621,20 +580,82 @@ class SyntaxAnalyzer:
 
         return params_node
 
+    def parse_function_call(self):
+        call_node = ParseTreeNode("FUNCTION_CALL")
+
+        func_tok = self.match(expected_type="Function")
+        if not func_tok:
+            return None
+        call_node.value = func_tok[1]
+
+        lp = self.match(expected_type="Open Parenthesis", expected_value="(")
+        if not lp:
+            return None
+
+        while self.current_token and self.current_token[1] != ")":
+            arg_expr = self.parse_expression()
+            if not arg_expr:
+                return None
+            call_node.add_child(arg_expr)
+
+            if self.current_token and self.current_token[1] == ",":
+                self.advance()
+                continue
+            else:
+                break
+
+        rp = self.match(expected_type="Close Parenthesis", expected_value=")")
+        if not rp:
+            return None
+
+        return call_node
+
+    def parse_array_initializer(self):
+        array_node = ParseTreeNode("ARRAY_LITERAL")
+
+        ob = self.match(expected_type="Open Bracket", expected_value="[")
+        if not ob:
+            return None
+
+        while self.current_token and self.current_token[1] != "]":
+            element = None
+
+            ttype, tval = self.current_token
+
+            if ttype == "Function":
+                element = self.parse_function_call()
+                if not element:
+                    return None
+
+            else:
+                element = self.parse_expression()
+                if not element:
+                    return None
+
+            array_node.add_child(element)
+
+            if self.current_token and self.current_token[1] == ",":
+                self.advance()
+                continue
+            else:
+                break
+
+        cb = self.match(expected_type="Close Bracket", expected_value="]")
+        if not cb:
+            return None
+
+        return array_node
+
     # ----------------------------------------------------------------
     # RETURN statement (reply)
     # ----------------------------------------------------------------
     def parse_return_stmt(self):
-        """
-        reply <expr>
-        """
         node = ParseTreeNode("RETURN_STMT")
 
         r_kw = self.match(expected_value="reply")
         if not r_kw:
             return None
 
-        # The rest is an expression
         expr = self.parse_expression()
         if not expr:
             return None
@@ -646,9 +667,6 @@ class SyntaxAnalyzer:
     # BLOCK
     # ----------------------------------------------------------------
     def parse_block(self):
-        """
-        { statement_list }
-        """
         node = ParseTreeNode("BLOCK")
 
         lb = self.match(expected_value="{")
@@ -668,10 +686,6 @@ class SyntaxAnalyzer:
     # ASSIGNMENT or EXPRESSION STATEMENT
     # ----------------------------------------------------------------
     def parse_assignment_or_expr(self):
-        """
-        We check if it's "identifier = expr" or "identifier++" or "identifier--" etc.
-        Otherwise treat it as an expression statement.
-        """
         node = ParseTreeNode("EXPR_STMT")
 
         ident = self.match(expected_type="Identifier")
@@ -681,21 +695,37 @@ class SyntaxAnalyzer:
         if self.current_token:
             ttype, tval = self.current_token
 
-            # Check assignment operators (=, +=, -=, etc.)
-            if ttype == "Operator" and tval in {"=", "+=", "-=", "*=", "/=", "%=", "^="}:
-                op_tok = self.match()  # consume the operator
+            if ttype in {
+                "Equal Sign",
+                "Addition Assignment",
+                "Subtraction Assignment",
+                "Multiplication Assignment",
+                "Division Assignment",
+                "Remainder Assignment",
+                "Exponentiation Assignment"} and tval in {"=", "+=", "-=", "*=", "/=", "%=", "^="}:
+                op_tok = self.match() 
                 if not op_tok:
                     return None
-                expr = self.parse_expression()
-                if not expr:
-                    return None
-                assign_node = ParseTreeNode("ASSIGNMENT_OP", op_tok[1])
-                assign_node.add_child(ParseTreeNode("IDENTIFIER", ident[1]))
-                assign_node.add_child(expr)
-                node.add_child(assign_node)
-                return node
 
-            # Increment/decrement operators (like ++ or --)
+                if self.current_token and self.current_token[1] == "[":
+                    array_node = self.parse_array_initializer()
+                    if not array_node:
+                        return None
+                    assign_node = ParseTreeNode("ASSIGNMENT_OP", op_tok[1])
+                    assign_node.add_child(ParseTreeNode("IDENTIFIER", ident[1]))
+                    assign_node.add_child(array_node)
+                    node.add_child(assign_node)
+                    return node
+                else:
+                    expr = self.parse_expression()
+                    if not expr:
+                        return None
+                    assign_node = ParseTreeNode("ASSIGNMENT_OP", op_tok[1])
+                    assign_node.add_child(ParseTreeNode("IDENTIFIER", ident[1]))
+                    assign_node.add_child(expr)
+                    node.add_child(assign_node)
+                    return node
+
             elif ttype in {"Increment Operator", "Decrement Operator"} and tval in {"++", "--"}:
                 incdec_tok = self.match()
                 incdec_node = ParseTreeNode("INCDEC_OP", incdec_tok[1])
@@ -703,30 +733,19 @@ class SyntaxAnalyzer:
                 node.add_child(incdec_node)
                 return node
 
-        # If not an assignment or inc/dec, treat as expression statement with single identifier
         expr_node = ParseTreeNode("EXPR")
         expr_node.add_child(ParseTreeNode("IDENTIFIER", ident[1]))
         node.add_child(expr_node)
         return node
 
     # ----------------------------------------------------------------
-    # EXPRESSIONS: a simple approach
+    # EXPRESSIONS
     # ----------------------------------------------------------------
     def parse_expression(self):
-        """
-        A minimal expression parser that handles:
-          - primary (number, string, identifier)
-          - operators (>=, <=, +, -, etc.) in a left-associative chain.
-        For example:  grade >= 90
-                      x + 2 * y
-        If you need more robust handling (operator precedence, parentheses),
-        expand this method or implement separate parse_* functions.
-        """
         left_node = self.parse_primary()
         if not left_node:
             return None
 
-        # While next token is an operator, parse a binary op: left op right
         while self.current_token and self.current_token[0] in {
                 "Operator",
                 "Equal Sign",
@@ -742,8 +761,6 @@ class SyntaxAnalyzer:
                 "Division Operator",
                 "Remainder Operator",
                 "Exponentiation Operator",
-                "Increment Operator",
-                "Decrement Operator",
                 "Logical NOT Operator",
                 "Logical AND Operator",
                 "Logical OR Operator",
@@ -769,35 +786,36 @@ class SyntaxAnalyzer:
         return left_node
 
     def parse_primary(self):
-        """
-        Primary = Identifier | Integer | Float Number | String | ( parenthesized expression ) ?
-        For now, we just handle the four basic types plus an error if not found.
-        """
         if not self.current_token:
             self.report_error("Unexpected end of tokens in parse_primary().")
             return None
 
         ttype, tval = self.current_token
 
-         # Check for parenthesized expression:
         if ttype == "Open Parenthesis" and tval == "(":
             self.match("Open Parenthesis", "(")
             subexpr = self.parse_expression()
-            self.match("Close Parenthesis", ")")  # consume the close parenthesis
+            self.match("Close Parenthesis", ")")
             return subexpr
 
-        # Basic literal or identifier
-        if ttype in {"Integer", "Float Number", "String", "Identifier"}:
-            self.advance()
-            node_type = ttype.upper().replace(" ", "_")
-            return ParseTreeNode(node_type, tval)
+        if ttype == "Open Bracket" and tval == "[":
+            return self.parse_array_initializer()
 
-        # If you want to handle '(' expr ')' for grouping, you can do:
-        # if (ttype == "Bracket" and tval == "("):
-        #     self.match("Bracket", "(")
-        #     subexpr = self.parse_expression()
-        #     self.match("Bracket", ")")
-        #     return subexpr
+        if ttype in {"Integer", "Float Number", "String", "Identifier"}:
+            node_type = ttype.upper().replace(" ", "_") 
+            primary_node = ParseTreeNode(node_type, tval)
+            self.advance() 
+
+            if self.current_token and \
+            self.current_token[0] in {"Increment Operator", "Decrement Operator"}:
+                incdec_tok = self.current_token
+                postfix_node = ParseTreeNode("POSTFIX_OP", incdec_tok[1])
+                postfix_node.add_child(primary_node)
+                self.advance()
+
+                return postfix_node
+
+            return primary_node
 
         self.report_error(f"Invalid expression token: ({ttype}, {tval})")
         return None

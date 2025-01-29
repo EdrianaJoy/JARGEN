@@ -36,29 +36,9 @@ def print_parse_tree(node, indent=0):
 
 # Quick test code
 if __name__ == "__main__":
-    code_sample = """
-    flex grade = 85
-    sus (grade >= 90) {
-        spill("Grade: A")
-    } 
-    else sus (grade >= 80) {
-        spill("Grade: B")
-    } 
-    else sus (grade >= 70) {
-        spill("Grade: C")
-    } 
-    else {
-        spill("Grade: F")
-    }
-    """
 
     if len(argv) > 1:
         print("\n=== PARSE TREE ===")
         print(print_parse_tree(syntax_analyze(argv[1])))
     else:
         print("No input provided.")
-
-    # tree = syntax_analyze(code_sample)
-    # if tree:
-    #     print("\n=== PARSE TREE ===")
-    #     print_parse_tree(tree)
