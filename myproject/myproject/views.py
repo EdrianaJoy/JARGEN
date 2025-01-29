@@ -19,7 +19,7 @@ def lexical_analyzer(request):
         if user_input:
             try:
                 # Run the Python script with the input as an argument
-                script_path = 'C:\\Users\\Abram\Documents\\1st Sem (3rd Year College)\\Principles of Programming Languages\\JARGEN\\JARGEN\\main.py'  # Replace with the actual path
+                script_path = 'C:\\Users\\Abram\Documents\\1st Sem (3rd Year College)\\Principles of Programming Languages\\JARGEN\\JARGEN\\syntax.analyzer\\main.py'  # Replace with the actual path
                 process = subprocess.run(
                     ['python', script_path, user_input],
                     capture_output=True,

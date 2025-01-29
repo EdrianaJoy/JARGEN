@@ -779,6 +779,13 @@ class SyntaxAnalyzer:
 
         ttype, tval = self.current_token
 
+         # Check for parenthesized expression:
+        if ttype == "Open Parenthesis" and tval == "(":
+            self.match("Open Parenthesis", "(")
+            subexpr = self.parse_expression()
+            self.match("Close Parenthesis", ")")  # consume the close parenthesis
+            return subexpr
+
         # Basic literal or identifier
         if ttype in {"Integer", "Float Number", "String", "Identifier"}:
             self.advance()
