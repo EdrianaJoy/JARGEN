@@ -3,7 +3,7 @@ from interpreter import *
 from syntax_analyzer import *
 
 def syntax_analyze(source_code):
-    # 1) Call your parse() function which wraps the lexer
+    # 1) Call parse() function which wraps the lexer
     token_lines = parse(source_code)  
     if not token_lines:
         print("Lexical analysis encountered errors or returned no tokens.")
@@ -18,15 +18,14 @@ def syntax_analyze(source_code):
         print(f"Syntax analysis encountered {analyzer.error_count} error(s).")
         return None
     else:
-        print("Syntax analysis completed successfully!")
+        # print("Syntax analysis completed successfully!")
         return parse_tree
 
 def print_parse_tree(node, indent=0):
-    """Recursively print the parse tree with indentation."""
     if not node:
         return
     prefix = "  " * indent
-    # Print the node type and optional value
+
     if node.value:
         print(f"{prefix}{node.node_type}({node.value})")
     else:
@@ -34,11 +33,10 @@ def print_parse_tree(node, indent=0):
     for child in node.children:
         print_parse_tree(child, indent + 1)
 
-# Quick test code
 if __name__ == "__main__":
 
     if len(argv) > 1:
-        print("\n=== PARSE TREE ===")
+        # print("\n=== PARSE TREE ===")
         print(print_parse_tree(syntax_analyze(argv[1])))
     else:
         print("No input provided.")
