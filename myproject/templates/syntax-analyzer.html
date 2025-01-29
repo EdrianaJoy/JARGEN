@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/syntax-analyzer.css' %}">
+  <style>
+    body {
+      background-image: url('{% static "images/main-bg.png" %}');
+    }
+    .left-side {
+      background-image: url('{% static "images/img-bg.png" %}');
+    }
+  </style>
+  <title>JARGEN</title>
+</head>
+<body>
+  <div class="container">
+    <div class="left-side">
+      <img class="jargen" src="{% static 'images/jargen.png' %}" alt="jargen" draggable="false">
+    </div>
+    <div class="right-side">
+      <h1 class="title">Syntax Analyzer</h1>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="editor-container">
+          <div class="editor">
+            <div class="line-numbers" id="lineNumbers"></div>
+            <textarea id="codeInput" name="user_input" placeholder="Enter your code here...">{{ user_input }}</textarea>    
+          </div>
+        </div>
+        <button id="runButton">Run</button>
+      </form>
+      <div class="output-container">
+        <h3>Output</h3>
+        {% if result %}
+        <pre>{{ result }}</pre>
+        {% else %}
+        <pre style="color: #757575;">Results will appear here after execution...</pre>
+        {% endif %}
+      </div>
+    </div>  
+  </div>
+  <script>
+    const textarea = document.getElementById('codeInput');
+    const lineNumbers = document.getElementById('lineNumbers');
+
+    // Function to update line numbers
+    function updateLineNumbers() {
+        const lines = textarea.value.split('\n').length;
+        lineNumbers.innerHTML = '';
+        for (let i = 1; i <= lines; i++) {
+            const line = document.createElement('span');
+            line.textContent = i;
+            lineNumbers.appendChild(line);
+        }
+    }
+
+    // Event listeners to update line numbers dynamically
+    textarea.addEventListener('input', updateLineNumbers);
+    textarea.addEventListener('scroll', () => {
+        lineNumbers.scrollTop = textarea.scrollTop;
+    });
+
+    // Initialize line numbers
+    updateLineNumbers();
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
+
+body {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: white;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+}
+
+.left-side {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    box-shadow: -10px 0px 100px 20px #000000;
+    height: 100vh;
+    position: relative;
+    width: 39.8%;
+}
+
+.jargen {
+    bottom: 0;
+    position: absolute;
+    transform: translate(30%, -15%);
+    width: 60%;
+}
+
+.right-side {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding: 25px 50px 50px 50px;
+    width: 60.2%;
+}
+
+.title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    margin: 0 0 25px 0;
+    width: 100%;
+}
+
+.editor-container,
+.output-container {
+    border-radius: 5px;
+    max-height: 255px;
+    overflow: hidden;
+    width: 120vh;
+}
+
+.editor {
+    display: flex;
+    overflow: hidden;
+}
+
+.line-numbers {
+    background: linear-gradient(#ad2c5a, #57132a);
+    color: white;
+    font-family: monospace;
+    font-size: 16px;
+    max-height: 250px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-y: hidden;
+    padding: 10px;
+    text-align: right;
+    user-select: none;
+}
+
+.line-numbers span {
+    display: block;
+    line-height: 1.5em;
+}
+
+textarea {
+    background: #00000099;
+    backdrop-filter: blur(5px);
+    border: none;
+    color: white;
+    flex: 1;
+    font-family: monospace;
+    font-size: 16px;
+    line-height: 1.5em;
+    max-height: 250px;
+    min-height: 120px;
+    outline: none;
+    overflow: auto;
+    padding: 10px;
+    resize: none;
+}
+
+textarea::-webkit-scrollbar,
+pre::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+textarea::-webkit-scrollbar-track,
+pre::-webkit-scrollbar-track {
+    background: #000000; 
+}
+
+textarea::-webkit-scrollbar-thumb,
+pre::-webkit-scrollbar-thumb {
+    background: #ad2c5a; 
+    cursor: grab;
+}
+
+textarea::-webkit-scrollbar-thumb:hover,
+pre::-webkit-scrollbar-thumb:hover {
+    background: #57132a; 
+}
+
+button {
+    background: #ad2c5a;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    margin: 25px auto;
+    padding: 10px 30px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+    background: #57132a;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.output-container h3 {
+    background: linear-gradient(to right, #57132a, #ad2c5a);
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    margin: 0;
+    padding: 10px 18px;
+}
+
+pre {
+    background: #00000099;
+    backdrop-filter: blur(5px);
+    border: none;
+    color: white;
+    flex: 1;
+    font-family: monospace;
+    font-size: 16px;
+    line-height: 1.5em;
+    margin: 0;
+    max-height: 250px;
+    min-height: 120px;
+    outline: none;
+    overflow-x: auto;
+    padding: 10px 18px;
+    resize: none;
+}
