@@ -2,10 +2,9 @@
 
 body {
     background-position: center;
-    background-repeat: no-repeat;
+    background-repeat: repeat;
     background-size: cover;
     color: white;
-    height: 100vh;
     margin: 0;
     padding: 0;
 }
@@ -20,7 +19,7 @@ body {
     background-size: cover;
     box-shadow: -10px 0px 100px 20px #000000;
     height: 100vh;
-    position: relative;
+    position: fixed;
     width: 39.8%;
 }
 
@@ -35,6 +34,7 @@ body {
     align-items: center;
     display: flex;
     flex-direction: column;
+    margin-left: 39.8%;
     padding: 25px 50px 50px 50px;
     width: 60.2%;
 }
@@ -46,12 +46,15 @@ body {
     width: 100%;
 }
 
+form {
+    width: 100%;
+}
+
 .editor-container,
 .output-container {
     border-radius: 5px;
-    max-height: 255px;
     overflow: hidden;
-    width: 120vh;
+    width: 100%;
 }
 
 .editor {
@@ -64,7 +67,7 @@ body {
     color: white;
     font-family: monospace;
     font-size: 16px;
-    max-height: 250px;
+    max-height: 235px;
     overflow-x: hidden;
     overflow-y: auto;
     overflow-y: hidden;
@@ -87,7 +90,7 @@ textarea {
     font-family: monospace;
     font-size: 16px;
     line-height: 1.5em;
-    max-height: 250px;
+    max-height: 235px;
     min-height: 120px;
     outline: none;
     overflow: auto;
@@ -153,7 +156,7 @@ pre {
     font-size: 16px;
     line-height: 1.5em;
     margin: 0;
-    max-height: 250px;
+    max-height: 235px;
     min-height: 120px;
     outline: none;
     overflow-x: auto;
